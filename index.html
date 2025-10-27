@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jollibee Food Ordering System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .section { opacity:0; transform:translateY(20px); transition:all 0.6s ease; }
+    .section.active { opacity:1; transform:translateY(0); }
+    html { scroll-behavior:smooth; }
+  </style>
+</head>
+<body class="bg-red-50 font-sans">
+
+  <!-- Navbar -->
+  <nav class="flex justify-between items-center bg-red-600 text-white px-6 py-4 flex-wrap shadow-md">
+    <h1 class="text-2xl font-bold">🍗 JolliOrder</h1>
+    <div class="space-x-2 mt-2 sm:mt-0 flex flex-wrap gap-2" id="navButtons">
+      <button id="browseBtn" class="hover:bg-red-700 px-4 py-2 rounded">Browse Menu</button>
+      <button id="placeOrderBtn" class="hover:bg-red-700 px-4 py-2 rounded">Place Order</button>
+      <button id="paymentBtn" class="hover:bg-red-700 px-4 py-2 rounded">Make Payment</button>
+      <button id="trackBtn" class="hover:bg-red-700 px-4 py-2 rounded">Track Order</button>
+      <button id="updateBtn" class="hover:bg-red-700 px-4 py-2 rounded">Update Order Status</button>
+      <button id="manageMenuBtn" class="hover:bg-red-700 px-4 py-2 rounded">Manage Menu Items</button>
+      <button id="manageUsersBtn" class="hover:bg-red-700 px-4 py-2 rounded">Manage Users</button>
+    </div>
+  </nav>
+
+  <!-- Hero Banner -->
+  <section id="heroSection" class="relative w-full h-64 md:h-96 bg-cover bg-center text-white flex items-center justify-center" style="background-image:url('kk.webp');">
+    <div class="bg-black bg-opacity-50 w-full h-full absolute top-0 left-0"></div>
+    <div class="relative z-10 text-center px-4">
+      <h1 class="text-4xl md:text-6xl font-bold">Welcome to JolliOrder</h1>
+      <p class="mt-4 text-lg md:text-2xl">Bringing the joy of Jollibee straight to your fingertips 🍗</p>
+      <button id="orderNowBtn" class="mt-6 bg-yellow-400 text-red-700 font-bold px-6 py-3 rounded-lg hover:bg-yellow-500 transition-all duration-300 w-full sm:w-auto">Order Now</button>
+    </div>
+  </section>
+
+  <!-- Home Section -->
+  <section id="homeSection" class="section active p-8">
+    <h2 class="text-3xl font-bold text-center text-red-700 mb-8">🍔 Our Bestsellers</h2>
+    <div id="homeItems" class="grid gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"></div>
+  </section>
+
+  <!-- Browse Section -->
+  <section id="browseSection" class="section hidden p-8 bg-white rounded-xl mx-6 mt-8 shadow-inner">
+    <h2 class="text-3xl font-bold text-red-700 mb-4">📖 Browse Menu</h2>
+    <div id="browseItems" class="grid gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"></div>
+  </section>
+
+  <!-- Place Order Section -->
+  <section id="placeOrderSection" class="section hidden p-8 bg-white rounded-xl mx-6 mt-8 shadow-inner">
+    <h2 class="text-3xl font-bold text-red-700 mb-4">📝 Your Cart</h2>
+    <div id="cartItemsPlaceOrder" class="space-y-4"></div>
+    <div class="mt-4 flex justify-end">
+      <button id="confirmCartBtn" class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">Confirm Order</button>
+    </div>
+  </section>
+
+  <!-- Payment Section -->
+  <section id="makePaymentSection" class="section hidden p-8 bg-white rounded-xl mx-6 mt-8 shadow-inner">
+    <h2 class="text-3xl font-bold text-red-700 mb-4">💳 Make Payment</h2>
+    <div id="cartItemsPayment" class="space-y-4"></div>
+    <h3 id="paymentTotal" class="text-xl font-bold text-red-600 text-right mt-2"></h3>
+  </section>
+
+  <!-- Track Order Section -->
+  <section id="trackOrderSection" class="section hidden p-8 bg-white rounded-xl mx-6 mt-8 shadow-inner">
+    <h2 class="text-3xl font-bold text-red-700 mb-4">📍 Track Order</h2>
+    <div id="trackList" class="space-y-4"></div>
+  </section>
+
+  <!-- Update Order Section -->
+  <section id="updateOrderSection" class="section hidden p-8 bg-white rounded-xl mx-6 mt-8 shadow-inner">
+    <h2 class="text-3xl font-bold text-red-700 mb-4">⚙️ Update Order Status</h2>
+    <div id="updateList" class="space-y-4"></div>
+  </section>
+
+  <!-- Manage Menu Section -->
+  <section id="manageMenuSection" class="section hidden p-8 bg-white rounded-xl mx-6 mt-8 shadow-inner">
+    <h2 class="text-3xl font-bold text-red-700 mb-4">📋 Manage Menu Items</h2>
+    <div id="menuList" class="space-y-4"></div>
+    <button onclick="addMenuItem()" class="mt-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Add New Item</button>
+  </section>
+
+  <!-- Manage Users Section -->
+  <section id="manageUsersSection" class="section hidden p-8 bg-white rounded-xl mx-6 mt-8 shadow-inner">
+    <h2 class="text-3xl font-bold text-red-700 mb-4">👥 Manage Users</h2>
+    <div id="userList" class="space-y-4"></div>
+    <button onclick="addUser()" class="mt-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Add New User</button>
+  </section>
+
+  <!-- Payment Modal -->
+  <div id="paymentModal" class="fixed inset-0 hidden items-center justify-center bg-black bg-opacity-50 z-50">
+    <div class="bg-white p-6 rounded-xl shadow-lg w-96 text-center">
+      <h2 class="text-2xl font-bold text-red-600 mb-4">💳 Choose Payment Method</h2>
+      <div class="space-y-3 text-left">
+        <label class="flex items-center gap-3"><input type="radio" name="paymentMethod" value="Cash on Delivery" required /> <span>💵 Cash on Delivery</span></label>
+        <label class="flex items-center gap-3"><input type="radio" name="paymentMethod" value="GCash" /> <span>📱 GCash</span></label>
+        <label class="flex items-center gap-3"><input type="radio" name="paymentMethod" value="Credit Card" /> <span>💳 Credit / Debit Card</span></label>
+      </div>
+      <div class="mt-6 flex justify-between">
+        <button onclick="closePaymentModal()" class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">Cancel</button>
+        <button onclick="confirmPayment()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== Data =====
+    let cart = [];
+    let foodItems = [
+      { name: "1-pc Chickenjoy w/ Rice", price: 82, img: "chicken.png" },
+      { name: "2-pc Burger Steak", price: 105, img: "burger.jpg" },
+      { name: "Jolly Spaghetti", price: 65, img: "spag.jpg" },
+      { name: "Yumburger", price: 45, img: "yumburger.jpg" },
+      { name: "Jolly Hotdog", price: 60, img: "hotdog ni ryver.jpg" },
+      { name: "Jolly Fries", price: 55, img: "fries.webp" },
+      { name: "Pineapple Juice", price: 45, img: "juice.jpg" },
+      { name: "Peach Mango Pie", price: 39, img: "mango.jpg" }
+    ];
+    let orders = [
+      { id: 1, customer: "Cathy", status: "Preparing" },
+      { id: 2, customer: "John", status: "Delivered" }
+    ];
+    let users = [
+      { username: "cathy", role: "Customer" },
+      { username: "admin", role: "Admin" }
+    ];
+
+    // ===== Render Food =====
+    function renderFood(sectionId){
+      const container = document.getElementById(sectionId);
+      container.innerHTML = '';
+      foodItems.forEach(item => {
+        container.innerHTML += `
+          <div class="bg-white rounded-2xl shadow-lg p-5 text-center hover:shadow-2xl transition">
+            <img src="${item.img}" class="w-40 h-40 object-cover mx-auto rounded-lg" />
+            <h2 class="text-lg font-bold mt-3">${item.name}</h2>
+            <p class="text-gray-600">₱${item.price}</p>
+            <button onclick="confirmAddToCart('${item.name}',${item.price})" class="mt-3 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Add to Cart</button>
+          </div>`;
+      });
+    }
+
+    renderFood('homeItems');
+    renderFood('browseItems');
+
+    // ===== Cart Functions with confirmation =====
+    function confirmAddToCart(name, price){
+      if(confirm(`Are you sure you want to add "${name}" to your cart?`)){
+        addToCart(name, price);
+      }
+    }
+
+    function addToCart(name, price){
+      const existing = cart.find(i => i.name === name);
+      if(existing) existing.quantity++; else cart.push({name, price, quantity: 1});
+      displayCartInPlaceOrder();
+      displayCartInPayment();
+    }
+
+    function increaseQuantity(name){ const item = cart.find(i=>i.name===name); if(item){ item.quantity++; displayCartInPlaceOrder(); displayCartInPayment(); } }
+    function decreaseQuantity(name){ const item = cart.find(i=>i.name===name); if(item){ if(item.quantity>1)item.quantity--; else cart = cart.filter(i=>i.name!==name); displayCartInPlaceOrder(); displayCartInPayment(); } }
+
+    function displayCartInPlaceOrder(){
+      const container = document.getElementById('cartItemsPlaceOrder'); container.innerHTML='';
+      if(cart.length===0){ container.innerHTML=`<p class="text-gray-600 text-center">Your cart is empty 🍔</p>`; return; }
+      cart.forEach(item=>{
+        const total=item.price*item.quantity;
+        container.innerHTML+=`<div class="flex justify-between items-center bg-white p-4 rounded-lg shadow mb-2 flex-wrap gap-2">
+          <div><h4 class="font-bold">${item.name}</h4><p>₱${item.price} each | Qty: ${item.quantity}</p></div>
+          <div class="flex items-center gap-2">
+            <button onclick="decreaseQuantity('${item.name}')" class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-700">−</button>
+            <span class="font-bold">${item.quantity}</span>
+            <button onclick="increaseQuantity('${item.name}')" class="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-700">+</button>
+          </div>
+          <p class="font-bold w-20 text-right">₱${total}</p>
+        </div>`;
+      });
+    }
+
+    function displayCartInPayment(){
+      const container = document.getElementById('cartItemsPayment'); container.innerHTML=''; let total=0;
+      if(cart.length===0){ container.innerHTML=`<p class="text-gray-600 text-center">Your cart is empty 🍔</p>`; return; }
+      cart.forEach(item=>{ const itemTotal=item.price*item.quantity; total+=itemTotal;
+        container.innerHTML+=`<div class="flex justify-between items-center bg-white p-4 rounded-lg shadow mb-2 flex-wrap gap-2">
+          <div><h4 class="font-bold">${item.name}</h4><p>₱${item.price} each | Qty: ${item.quantity}</p></div>
+          <p class="font-bold w-20 text-right">₱${itemTotal}</p>
+        </div>`;
+      });
+      document.getElementById('paymentTotal').innerText=`Total: ₱${total}`;
+    }
+
+    // ===== Payment =====
+    function openPaymentModal(){
+      if(cart.length===0){ alert("Your cart is empty!"); return; }
+      displayCartInPayment();
+      document.getElementById('paymentModal').classList.remove('hidden'); 
+      document.getElementById('paymentModal').classList.add('flex');
+    }
+    function closePaymentModal(){ document.getElementById('paymentModal').classList.add('hidden'); }
+    function confirmPayment(){
+      const selected=document.querySelector('input[name="paymentMethod"]:checked'); 
+      if(!selected){ alert("Please select a payment method!"); return; } 
+      alert(`✅ Order placed!\nPayment: ${selected.value}`);
+      cart=[]; displayCartInPlaceOrder(); displayCartInPayment(); closePaymentModal();
+    }
+
+    // ===== Track Orders =====
+    function displayOrders(){ const container=document.getElementById("trackList"); container.innerHTML='';
+      if(orders.length===0){ container.innerHTML=`<p class="text-gray-600 text-center">No orders yet.</p>`; return; }
+      orders.forEach(order=>{ container.innerHTML+=`<div class="flex justify-between items-center bg-white p-4 rounded-lg shadow flex-wrap gap-2">
+        <div><h4 class="font-bold">Order #${order.id} - ${order.customer}</h4></div>
+        <div><span class="text-gray-700 font-semibold">Status: ${order.status}</span></div>
+      </div>`; });
+    }
+
+    // ===== Update Orders =====
+    function displayUpdateOrders(){ const container=document.getElementById("updateList"); container.innerHTML='';
+      if(orders.length===0){ container.innerHTML=`<p class="text-gray-600 text-center">No orders to update.</p>`; return; }
+      orders.forEach(order=>{ container.innerHTML+=`<div class="flex justify-between items-center bg-white p-4 rounded-lg shadow flex-wrap gap-2">
+        <div><h4 class="font-bold">Order #${order.id} - ${order.customer}</h4></div>
+        <div class="flex gap-2 flex-wrap">
+          <select id="status-${order.id}" class="border rounded px-2 py-1">
+            <option value="Preparing" ${order.status==='Preparing'?'selected':''}>Preparing</option>
+            <option value="Out for Delivery" ${order.status==='Out for Delivery'?'selected':''}>Out for Delivery</option>
+            <option value="Delivered" ${order.status==='Delivered'?'selected':''}>Delivered</option>
+          </select>
+          <button onclick="updateStatus(${order.id})" class="bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700">Update</button>
+        </div>
+      </div>`; });
+    }
+    function updateStatus(orderId){ const select=document.getElementById(`status-${orderId}`); const order=orders.find(o=>o.id===orderId); if(order){ order.status=select.value; alert(`Order #${orderId} updated to ${order.status}`); displayOrders(); displayUpdateOrders(); } }
+
+    // ===== Manage Menu =====
+    function displayMenuItems(){ const container=document.getElementById("menuList"); container.innerHTML='';
+      foodItems.forEach((item,index)=>{ container.innerHTML+=`<div class="flex justify-between items-center bg-white p-4 rounded-lg shadow flex-wrap gap-2">
+        <div><h4 class="font-bold">${item.name}</h4><p>₱${item.price}</p></div>
+        <div class="flex gap-2 flex-wrap">
+          <button onclick="editMenuItem(${index})" class="bg-yellow-500 text-white px-4 py-1 rounded hover:bg-yellow-600">Edit</button>
+          <button onclick="deleteMenuItem(${index})" class="bg-red-600 text-white px-4 py-1 rounded hover:bg-red-700">Delete</button>
+        </div>
+      </div>`; });
+    }
+    function addMenuItem(){ const name=prompt("Enter item name:"); const price=parseFloat(prompt("Enter price:")); const img=prompt("Enter image filename/URL:"); if(name && !isNaN(price) && img){ foodItems.push({name,price,img}); displayMenuItems(); renderFood('homeItems'); renderFood('browseItems'); } }
+    function editMenuItem(index){ const item=foodItems[index]; const name=prompt("Edit name:",item.name); const price=parseFloat(prompt("Edit price:",item.price)); const img=prompt("Edit image:",item.img); if(name && !isNaN(price) && img){ foodItems[index]={name,price,img}; displayMenuItems(); renderFood('homeItems'); renderFood('browseItems'); } }
+    function deleteMenuItem(index){ if(confirm(`Delete ${foodItems[index].name}?`)){ foodItems.splice(index,1); displayMenuItems(); renderFood('homeItems'); renderFood('browseItems'); } }
+
+    // ===== Manage Users =====
+    function displayUsers(){ const container=document.getElementById("userList"); container.innerHTML='';
+      if(users.length===0){ container.innerHTML=`<p class="text-gray-600 text-center">No users yet.</p>`; return; }
+      users.forEach((user,index)=>{ container.innerHTML+=`<div class="flex justify-between items-center bg-white p-4 rounded-lg shadow flex-wrap gap-2">
+        <div><h4 class="font-bold">${user.username}</h4><p>Role: ${user.role}</p></div>
+        <div class="flex gap-2 flex-wrap">
+          <button onclick="editUser(${index})" class="bg-yellow-500 text-white px-4 py-1 rounded hover:bg-yellow-600">Edit</button>
+          <button onclick="deleteUser(${index})" class="bg-red-600 text-white px-4 py-1 rounded hover:bg-red-700">Delete</button>
+        </div>
+      </div>`; });
+    }
+    function addUser(){ const username=prompt("Enter username:"); const role=prompt("Enter role (Customer/Admin):"); if(username && role){ users.push({username,role}); displayUsers(); } }
+    function editUser(index){ const username=prompt("Edit username:",users[index].username); const role=prompt("Edit role:",users[index].role); if(username && role){ users[index]={username,role}; displayUsers(); } }
+    function deleteUser(index){ if(confirm(`Delete ${users[index].username}?`)){ users.splice(index,1); displayUsers(); } }
+
+    // ===== Show Section =====
+    function showSection(sectionId){
+      document.querySelectorAll('.section').forEach(s=>s.classList.add('hidden')); 
+      const s=document.getElementById(sectionId); s.classList.remove('hidden'); s.classList.add('active');
+    }
+
+    // ===== Navbar Buttons =====
+    document.getElementById('browseBtn').onclick=()=>showSection('browseSection');
+    document.getElementById('placeOrderBtn').onclick=()=>{
+      if(cart.length===0){ alert("Your cart is empty!"); return; }
+      showSection('placeOrderSection'); displayCartInPlaceOrder();
+    };
+    document.getElementById('confirmCartBtn').onclick=()=>{
+      if(cart.length===0){ alert("Your cart is empty!"); return; }
+      let summary = "Please confirm your order:\n\n";
+      let total=0;
+      cart.forEach(item=>{ const itemTotal=item.price*item.quantity; total+=itemTotal; summary+=`${item.name} x${item.quantity} - ₱${itemTotal}\n`; });
+      summary+=`\nTotal: ₱${total}`;
+      if(confirm(summary)){ openPaymentModal(); }
+    };
+    document.getElementById('paymentBtn').onclick=openPaymentModal;
+    document.getElementById('trackBtn').onclick=()=>{ showSection('trackOrderSection'); displayOrders(); };
+    document.getElementById('updateBtn').onclick=()=>{ showSection('updateOrderSection'); displayUpdateOrders(); };
+    document.getElementById('manageMenuBtn').onclick=()=>{ showSection('manageMenuSection'); displayMenuItems(); };
+    document.getElementById('manageUsersBtn').onclick=()=>{ showSection('manageUsersSection'); displayUsers(); };
+    document.getElementById('orderNowBtn').onclick=()=>showSection('browseSection');
+
+  </script>
+</body>
+</html>
